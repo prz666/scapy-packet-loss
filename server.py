@@ -1,11 +1,6 @@
-from scapy.all import sniff, IP
+from scapy.all import sniff
 from os import environ
-import sys
-
-
-def debug_logging(pkt):
-    print(f"{pkt[IP].src} {pkt.id}")
-    sys.stdout.flush()
+from utils import debug_logging
 
 
 def main():

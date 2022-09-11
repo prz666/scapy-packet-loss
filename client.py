@@ -1,12 +1,7 @@
 from scapy.all import send, IP, UDP
 from os import environ
 from time import sleep
-import sys
-
-
-def debug_logging(pkt):
-    print(f"{pkt[IP].src} {pkt.id}")
-    sys.stdout.flush()
+from utils import debug_logging
 
 
 def main():
