@@ -1,2 +1,2 @@
 scapy
-ipython
+prometheus-client

@@ -26,8 +26,8 @@ ip netns exec ns2 python server.py | tee /tmp/rx
 
 # then client
 export SCAPY_TARGET_IP=192.168.0.2
-export SCAPY_SEND_INTERVAL=0.1
-export SCAPY_SEND_PKT_COUNT=200
+export SCAPY_SEND_PPS=10
+export SCAPY_SEND_TOTAL=100000
 ip netns exec ns1 python client.py | tee /tmp/tx
 
 # diff results

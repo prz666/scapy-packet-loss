@@ -6,8 +6,8 @@ Ultra basic tool to measure uni-directional packet loss between two endpoints.
 
 # Setup
 
-See last steps in `lab_setup.sh`, which was used to test the solution in a sandbox using Linux network namespaces, along with using `tc` to simulate random percent-based packet drops.
+See last steps in `lab_setup1.sh`, which was used to test the solution in a sandbox using Linux network namespaces, along with using `tc` to simulate random percent-based packet drops.
 
 # Caveats
 
-Obviously, any firewalls or security groups etc. need to be open for any given flow.
+* Obviously, any firewalls or security groups etc. need to be open for any given flow.
