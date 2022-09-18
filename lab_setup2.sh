@@ -8,11 +8,13 @@
 apt update
 wget https://github.com/prometheus/prometheus/releases/download/v2.38.0/prometheus-2.38.0.linux-arm64.tar.gz
 tar -xzvf prometheus-2.38.0.linux-arm64.tar.gz
+rm prometheus-2.38.0.linux-arm64.tar.gz
 
 # clone repo
 git clone https://github.com/prz666/scapy-packet-loss.git
 
 # setup python virtual environment
+cd scapy-packet-loss
 apt install python3.10-venv
 python3 -m venv venv
 source venv/bin/activate
@@ -75,6 +77,7 @@ source venv/bin/activate
 export SCAPY_TARGET_IP=192.168.0.2
 export SCAPY_SEND_PPS=10
 export SCAPY_SEND_TOTAL=100000
+export SCAPY_TEST_SIGNAL=""
 ip netns exec ns1 python client.py | tee /tmp/tx
 
 # intdoduce 10% loss from ns1 to ns2 (ie, egress towards ns2, from bridge perspective)

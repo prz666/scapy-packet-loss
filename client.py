@@ -22,13 +22,16 @@ def main():
 
     if SCAPY_TEST_SIGNAL:
         for pkt_id in SCAPY_TEST_SIGNAL.split():
-            pkt = IP(dst=SCAPY_TARGET_IP, id=pkt_id) / UDP(sport=6666, dport=6666)
+            pkt = IP(dst=SCAPY_TARGET_IP, id=int(pkt_id)) / UDP(sport=6666, dport=6666)
 
             debug_logging(pkt)
             send(pkt, verbose=False)
             c_flow_packets.labels("A", "B").inc()
 
             sleep(1.0 / SCAPY_SEND_PPS)
+
+        # to let prometheus scrape client metrics
+        sleep(100000)
 
     else:
         pkt_id = 1
