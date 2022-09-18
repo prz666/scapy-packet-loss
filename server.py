@@ -1,5 +1,5 @@
 from prometheus_client import start_http_server, Counter
-from scapy.all import sniff, IP
+from scapy.all import sniff, IP, UDP, Raw
 from os import environ
 from utils import debug_logging
 
@@ -19,13 +19,15 @@ def packet_telemetry(pkt):
 
     global last_id
 
-    current_id = pkt[IP].id
+    current_id = int(pkt[IP][UDP][Raw].load.decode())
     delta_id = current_id - last_id
 
     if delta_id > 1:
         c_lost_packets.labels("A", "B").inc(delta_id - 1)
 
-    last_id = current_id
+    # only track monotonic progress
+    if current_id > last_id:
+        last_id = current_id
 
     debug_logging(pkt)
 

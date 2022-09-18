@@ -22,7 +22,7 @@ def main():
 
     if SCAPY_TEST_SIGNAL:
         for pkt_id in SCAPY_TEST_SIGNAL.split():
-            pkt = IP(dst=SCAPY_TARGET_IP, id=int(pkt_id)) / UDP(sport=6666, dport=6666)
+            pkt = IP(dst=SCAPY_TARGET_IP) / UDP(sport=6666, dport=6666) / pkt_id
 
             debug_logging(pkt)
             send(pkt, verbose=False)
@@ -36,8 +36,11 @@ def main():
     else:
         pkt_id = 1
         while True:
-            pkt_id %= 2**16
-            pkt = IP(dst=SCAPY_TARGET_IP, id=pkt_id) / UDP(sport=6666, dport=6666)
+            pkt = (
+                IP(dst=SCAPY_TARGET_IP, id=pkt_id)
+                / UDP(sport=6666, dport=6666)
+                / str(pkt_id)
+            )
 
             debug_logging(pkt)
             send(pkt, verbose=False)
