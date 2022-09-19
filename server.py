@@ -16,7 +16,8 @@ my_ifce, my_ip = check_output(
     "ip rou get 8.8.8.8 | grep dev | cut -d' ' -f5,7",
     shell=True,
 ).split()
-
+my_ifce = my_ifce.decode()
+my_ip = my_ip.decode()
 
 SCAPY_SESSION_PORT = int(environ.get("SCAPY_SESSION_PORT", 26666))
 SCAPY_METRICS_PORT = int(environ.get("SCAPY_METRICS_PORT", 8000))
