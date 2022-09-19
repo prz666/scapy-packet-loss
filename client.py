@@ -5,16 +5,21 @@ from time import sleep
 from utils import debug_logging
 
 
-def main():
-    SCAPY_TARGET_IP = environ.get("SCAPY_TARGET_IP")
-    SCAPY_SEND_PPS = int(environ.get("SCAPY_SEND_PPS", 1))
-    SCAPY_SEND_TOTAL = int(environ.get("SCAPY_SEND_TOTAL", 100))
-    SCAPY_TEST_SIGNAL = environ.get("SCAPY_TEST_SIGNAL")
+SCAPY_TARGET_IP = environ.get("SCAPY_TARGET_IP")
+SCAPY_SESSION_PORT = int(environ.get("SCAPY_SESSION_PORT", 26666))
+SCAPY_METRICS_PORT = int(environ.get("SCAPY_METRICS_PORT", 8000))
+SCAPY_SEND_PPS = int(environ.get("SCAPY_SEND_PPS", 1))
+SCAPY_SEND_TOTAL = int(environ.get("SCAPY_SEND_TOTAL", 100))
+SCAPY_TEST_SIGNAL = environ.get("SCAPY_TEST_SIGNAL")
+SCAPY_SRC_NAME = environ.get("SCAPY_SRC_NAME", "A")
+SCAPY_DST_NAME = environ.get("SCAPY_DST_NAME", "B")
 
+
+def main():
     g_flow_rate_pps = Gauge(
-        "flow_rate_pps", "Flow (A->B) packet rate per second", ["src", "dst"]
+        "flow_rate_pps", "Flow (src -> dst) packet rate per second", ["src", "dst"]
     )
-    g_flow_rate_pps.labels("A", "B").set(SCAPY_SEND_PPS)
+    g_flow_rate_pps.labels(SCAPY_SRC_NAME, SCAPY_DST_NAME).set(SCAPY_SEND_PPS)
 
     c_flow_packets = Counter(
         "flow_packets", "Flow packets sent or received", ["src", "dst"]
@@ -22,11 +27,15 @@ def main():
 
     if SCAPY_TEST_SIGNAL:
         for pkt_id in SCAPY_TEST_SIGNAL.split():
-            pkt = IP(dst=SCAPY_TARGET_IP) / UDP(sport=6666, dport=6666) / pkt_id
+            pkt = (
+                IP(dst=SCAPY_TARGET_IP)
+                / UDP(sport=SCAPY_SESSION_PORT, dport=SCAPY_SESSION_PORT)
+                / pkt_id
+            )
 
             debug_logging(pkt)
             send(pkt, verbose=False)
-            c_flow_packets.labels("A", "B").inc()
+            c_flow_packets.labels(SCAPY_SRC_NAME, SCAPY_DST_NAME).inc()
 
             sleep(1.0 / SCAPY_SEND_PPS)
 
@@ -38,13 +47,13 @@ def main():
         while True:
             pkt = (
                 IP(dst=SCAPY_TARGET_IP, id=pkt_id)
-                / UDP(sport=6666, dport=6666)
+                / UDP(sport=SCAPY_SESSION_PORT, dport=SCAPY_SESSION_PORT)
                 / str(pkt_id)
             )
 
             debug_logging(pkt)
             send(pkt, verbose=False)
-            c_flow_packets.labels("A", "B").inc()
+            c_flow_packets.labels(SCAPY_SRC_NAME, SCAPY_DST_NAME).inc()
 
             pkt_id += 1
             if pkt_id > SCAPY_SEND_TOTAL:
@@ -54,5 +63,5 @@ def main():
 
 
 if __name__ == "__main__":
-    start_http_server(8000)
+    start_http_server(SCAPY_METRICS_PORT)
     main()
