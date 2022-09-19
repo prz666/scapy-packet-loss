@@ -9,7 +9,7 @@ SCAPY_TARGET_IP = environ.get("SCAPY_TARGET_IP")
 SCAPY_SESSION_PORT = int(environ.get("SCAPY_SESSION_PORT", 26666))
 SCAPY_METRICS_PORT = int(environ.get("SCAPY_METRICS_PORT", 8000))
 SCAPY_SEND_PPS = int(environ.get("SCAPY_SEND_PPS", 1))
-SCAPY_SEND_TOTAL = int(environ.get("SCAPY_SEND_TOTAL", 100))
+SCAPY_SEND_TOTAL = int(environ.get("SCAPY_SEND_TOTAL", 0))
 SCAPY_TEST_SIGNAL = environ.get("SCAPY_TEST_SIGNAL")
 SCAPY_SRC_NAME = environ.get("SCAPY_SRC_NAME", "A")
 SCAPY_DST_NAME = environ.get("SCAPY_DST_NAME", "B")
@@ -45,6 +45,7 @@ def main():
     else:
         pkt_id = 1
         while True:
+            pkt_id %= 2**16
             pkt = (
                 IP(dst=SCAPY_TARGET_IP, id=pkt_id)
                 / UDP(sport=SCAPY_SESSION_PORT, dport=SCAPY_SESSION_PORT)
@@ -56,8 +57,9 @@ def main():
             c_flow_packets.labels(SCAPY_SRC_NAME, SCAPY_DST_NAME).inc()
 
             pkt_id += 1
-            if pkt_id > SCAPY_SEND_TOTAL:
-                break
+            if SCAPY_SEND_TOTAL > 0:
+                if pkt_id > SCAPY_SEND_TOTAL:
+                    break
 
             sleep(1.0 / SCAPY_SEND_PPS)
 
