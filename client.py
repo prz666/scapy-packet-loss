@@ -26,11 +26,12 @@ def main():
     )
 
     if SCAPY_TEST_SIGNAL:
-        for pkt_id in SCAPY_TEST_SIGNAL.split():
+        for long_id in SCAPY_TEST_SIGNAL.split():
+            short_id = long_id % (2 << 15)
             pkt = (
-                IP(dst=SCAPY_TARGET_IP)
+                IP(dst=SCAPY_TARGET_IP, id=short_id)
                 / UDP(sport=SCAPY_SESSION_PORT, dport=SCAPY_SESSION_PORT)
-                / pkt_id
+                / long_id
             )
 
             debug_logging(pkt)
@@ -43,22 +44,22 @@ def main():
         sleep(100000)
 
     else:
-        pkt_id = 1
+        long_id = 1
         while True:
-            pkt_id %= 2**16
+            short_id = long_id % (2 << 15)
             pkt = (
-                IP(dst=SCAPY_TARGET_IP, id=pkt_id)
+                IP(dst=SCAPY_TARGET_IP, id=short_id)
                 / UDP(sport=SCAPY_SESSION_PORT, dport=SCAPY_SESSION_PORT)
-                / str(pkt_id)
+                / str(long_id)
             )
 
             debug_logging(pkt)
             send(pkt, verbose=False)
             c_flow_packets.labels(SCAPY_SRC_NAME, SCAPY_DST_NAME).inc()
 
-            pkt_id += 1
+            long_id += 1
             if SCAPY_SEND_TOTAL > 0:
-                if pkt_id > SCAPY_SEND_TOTAL:
+                if long_id > SCAPY_SEND_TOTAL:
                     break
 
             sleep(1.0 / SCAPY_SEND_PPS)
