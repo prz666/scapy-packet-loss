@@ -25,8 +25,8 @@ deactivate
 # generate prometheus config file
 cat <<EOT > /tmp/prometheus.yml
 global:
-  scrape_interval: 10s
-  evaluation_interval: 10s
+  scrape_interval: 1m
+  evaluation_interval: 1m
 
 scrape_configs:
   - job_name: "scapy"
